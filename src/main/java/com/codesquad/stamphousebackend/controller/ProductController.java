@@ -1,8 +1,15 @@
 package com.codesquad.stamphousebackend.controller;
 
+import java.io.IOException;
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
+import javax.sql.rowset.serial.SerialException;
+
+import org.hibernate.Hibernate;
+import org.hibernate.internal.build.AllowSysOut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +18,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.codesquad.stamphousebackend.entity.Product;
 import com.codesquad.stamphousebackend.services.ProductService;
@@ -37,8 +46,21 @@ public class ProductController {
 	}
 
 	@PostMapping("/addProduct")
-	public void addProduct(Product product) {
-		productService.addProduct(product);
+	public void addProduct(@RequestParam("file") MultipartFile file,@RequestParam("category") String category,
+			@RequestParam("description") String description,@RequestParam("stockCount") int stockCount,@RequestParam("name") String name,
+			@RequestParam("price") int price,@RequestParam("rating") String rating
+			)
+			throws IOException, SerialException, SQLException {
+		byte[] bytes = file.getBytes();
+	    Product product=new Product();
+	    product.setImage(bytes);
+	    product.setCategory(category);
+	    product.setDescription(description);
+	    product.setName(name);
+	    product.setPrice(price);
+	    product.setRating(rating);
+	    product.setStockCount(stockCount);
+	    productService.addProduct(product);
 	}
 
 	@GetMapping("/getProductById/{id}")
